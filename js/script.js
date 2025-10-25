@@ -1,14 +1,14 @@
 // localStorage.clear()
 import products from "./utils.js";
 
-const noInternet=document.querySelector( '.noInternet' );
+// const noInternet=document.querySelector( '.noInternet' );
 
-window.onload = () => window.navigator.onLine ? noInternet.style.display='none':
-                                                noInternet.style.display='block';
+// window.onload = () => window.navigator.onLine ? noInternet.style.display='none':
+//                                                 noInternet.style.display='block';
 
 
-window.ononline = () => noInternet.style.display = 'none';
-window.onoffline = () => noInternet.style.display = 'block';
+// window.ononline = () => noInternet.style.display = 'none';
+// window.onoffline = () => noInternet.style.display = 'block';
 
 // -------------------------------------------------------------------------------------------------------------------
 window.addEventListener('DOMContentLoaded',() => (drawData() , search.focus()));
@@ -453,7 +453,7 @@ function searchData(value) {
     if ( filteredProducts.length > 0 ) {
         renderData(filteredProducts)
     } else {
-        allProducts.innerHTML = `<img class="robot-404" src="/images/robot-404.jpg" alt="Robot 404 Image" />`
+        allProducts.innerHTML = `<img class="robot-404" src="images/robot-404.jpg" alt="Robot 404 Image" />`
     }
 }
 //-------------------End Search logices ------------- 
