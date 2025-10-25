@@ -453,7 +453,8 @@ function searchData(value) {
     if ( filteredProducts.length > 0 ) {
         renderData(filteredProducts)
     } else {
-        allProducts.innerHTML = `<img class="robot-404" src="images/robot-404.jpg" alt="Robot 404 Image" />`
+        allProducts.innerHTML = "";
+        allProducts.insertAdjacentHTML('beforeend', `<img class="robot-404" src="images/robot-404.jpg" alt="Robot 404 Image" />`)
     }
 }
 //-------------------End Search logices ------------- 
