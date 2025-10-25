@@ -49,7 +49,7 @@ function drawProudectCart(products) {
 
 const noProductsFondEle = `
                           <div class="products-not-found container">
-                            <img src="../images/product_not_found.jpeg" alt="Products not found image" />
+                            <img src="images/product_not_found.jpeg" alt="Products not found image" />
                             <a href="index.html">
                               Get Some Products <i class="fas fa-shopping-cart text-primary"></i>
                             </a>

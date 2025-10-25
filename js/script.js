@@ -141,14 +141,32 @@ drawData();
 
 //-------------------End render Data & pagination----------------
 
-// ------- Start add products to Cart
-const AddToCartBtn = document.querySelectorAll(".AddToCartBtn")
+// -----------Start add/remove/favorite buttons-------------
+allProducts.addEventListener('click', (e) => {
+    const target = e.target;
+    if (!target) return;
 
-AddToCartBtn?.forEach( btn => {
-    btn.addEventListener( "click", () => {
-        addTOCartEvent( Number( btn.dataset.productId ) )
-    } )
-} )
+    // Add to cart
+    if (target.classList.contains('AddToCartBtn')) {
+        const id = Number(target.dataset.productId);
+        if (Number.isFinite(id)) addTOCartEvent(id);
+        return;
+    }
+
+    // Remove from cart
+    if (target.classList.contains('RemoveFromCartBtn')) {
+        const id = Number(target.dataset.productId);
+        if (Number.isFinite(id)) removeFromCart(id);
+        return;
+    }
+
+    // Favorite toggle (heart)
+    if (target.classList.contains('heart-icon')) {
+        const id = Number(target.dataset.productId);
+        if (Number.isFinite(id)) addFav(id);
+        return;
+    }
+});
 
 function addTOCartEvent(id) {
     if (localStorage.getItem("userName")) {
@@ -166,8 +184,10 @@ function addTOCartEvent(id) {
             totalPrice.innerHTML = total +" EGP";
             localStorage.setItem("totalPrice", JSON.stringify(total));
 
-            document.getElementById(`add-btn-${id}`).style.display = "none";
-            document.getElementById(`remove-btn-${id}`).style.display = "inline-block";
+            const addBtn = document.getElementById(`add-btn-${id}`);
+            const removeBtn = document.getElementById(`remove-btn-${id}`);
+            if (addBtn) addBtn.style.display = "none";
+            if (removeBtn) removeBtn.style.display = "inline-block";
 
             if (addItemStorage.length != 0) {
                 badge.style.display = "block";
@@ -182,27 +202,23 @@ function addTOCartEvent(id) {
 
     handleViewProductsBtn()
 }
-// ------- End add products to Cart
+// ----------End delegated buttons-----------
 
-// ------- Start remove products from Cart
-const RemoveFromCartBtn = document.querySelectorAll(".RemoveFromCartBtn")
-
-RemoveFromCartBtn?.forEach( btn => {
-    btn.addEventListener( "click", () => removeFromCart( Number( btn.dataset.productId ) ) )
-})
-
+// ------------removeFromCart function-----------
 function removeFromCart(id) {
     let itemIndex = addItemStorage.findIndex((item) => item.id === id);
     let quantityElement = document.getElementById(`quantity-${id}`);
-    let quantity = +(quantityElement.innerHTML);
+    let quantity = +(quantityElement ? quantityElement.innerHTML : 1);
 
     if (itemIndex !== -1) {
         addItemStorage.splice(itemIndex, 1);
         localStorage.setItem("proudectInCart", JSON.stringify(addItemStorage));
 
         total = 0;
-        document.getElementById(`add-btn-${id}`).style.display = "inline-block";
-        document.getElementById(`remove-btn-${id}`).style.display = "none";
+        const addBtn = document.getElementById(`add-btn-${id}`);
+        const removeBtn = document.getElementById(`remove-btn-${id}`);
+        if (addBtn) addBtn.style.display = "inline-block";
+        if (removeBtn) removeBtn.style.display = "none";
 
         let buyProudectItem = document.getElementById(`buyProudectItem-${id}`);
         if (buyProudectItem) {
@@ -211,9 +227,7 @@ function removeFromCart(id) {
 
         addItemStorage.forEach((item) => {
             drawBuyProudect(item);
-            total += +item.salePrice * quantity;
-            // total += +item.salePrice * +(localStorage.getItem(`quantity-${item.id}`));
-
+            total += +item.salePrice * +(localStorage.getItem(`quantity-${item.id}`) || 1);
         });
 
         totalPrice.innerHTML = total +" EGP";
@@ -228,7 +242,6 @@ function removeFromCart(id) {
     }
     handleViewProductsBtn()
 }
-// ------- End remove products from Cart
 
 // --------------------Start Localstorge Aria--------------------------------
 const badge = document.querySelector(".badge");
@@ -360,11 +373,6 @@ function checkFavorite(itemId) {
     return isFavorite;
 }
 
-const heartIcon = document.querySelectorAll(".heart-icon")
-
-heartIcon.forEach( btn => {
-    btn.addEventListener( "click", () => addFav( Number( btn.dataset.productId ) ) )
-})
 
 
 function addFav(id) {
