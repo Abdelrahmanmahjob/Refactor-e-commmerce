@@ -11,7 +11,7 @@ window.ononline = () => noInternet.style.display = 'none';
 window.onoffline = () => noInternet.style.display = 'block';
 
 // -------------------------------------------------------------------------------------------------------------------
-// window.addEventListener('DOMContentLoaded',() => (drawData() , search.focus()));
+window.addEventListener('DOMContentLoaded',() => (drawData() , search.focus()));
 
 const allProducts = document.querySelector(".products")
 const paginationNumbersContainer = document.querySelector(".pagination-numbers-container")
