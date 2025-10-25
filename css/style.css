@@ -105,6 +105,7 @@ nav li a {
         padding: 10px 30px;
         text-wrap: none;
         box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
     }
 }
 
