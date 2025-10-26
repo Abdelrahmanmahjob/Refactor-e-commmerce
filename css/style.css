@@ -342,7 +342,208 @@ ul.pagination-numbers-container li.active {
     box-shadow: none;
 }
 
+.products-not-found {
+    margin: 0 auto;
+}
 /* ----------------------------- */
+
+/* start Cart Page styles */
+table.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table td,
+.table th {
+    align-content: center;
+}
+
+.cart-title {
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.cart-table .cart-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.products-not-found .empty-img {
+    max-width: 250px;
+}
+
+.cart-table .btn {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.cart-table .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-cart {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    table.cart-table {
+        display: none;
+    }
+
+    .mobile-cart {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        gap: 15px;
+        padding: 0 20px;
+    }
+
+    .mobile-cart-item {
+        width: 100%;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .mobile-cart-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-cart-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .mobile-cart-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        object-fit: contain;
+        border: 1px solid #eee;
+    }
+
+    .mobile-cart-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-cart-title {
+        font-weight: 600;
+        font-size: 15px;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .mobile-cart-price {
+        color: #007bff;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .mobile-cart-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px solid #eee;
+    }
+
+    .mobile-quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-quantity-controls button {
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        font-weight: bold;
+        border: 1px solid #ccc;
+        background: #f8f8f8;
+    }
+
+    .mobile-quantity-display {
+        min-width: 25px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .mobile-cart-subtotal {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .mobile-cart-remove {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background-color: #f44336;
+        border: none;
+        color: #fff;
+        font-size: 13px;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .mobile-cart-remove:hover {
+        background-color: #d32f2f;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-cart {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    .mobile-cart-item {
+        padding: 12px;
+    }
+
+    .mobile-cart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mobile-cart-img {
+        width: 100%;
+        height: auto;
+    }
+
+    .mobile-cart-title {
+        font-size: 14px;
+    }
+
+    .mobile-cart-price {
+        font-size: 13px;
+    }
+
+    .mobile-cart-subtotal {
+        font-size: 13px;
+    }
+}
+/* End Cart Page styles */
 
 /* ------------start carousel--------------- */
 .cards-wrapper {

@@ -1,175 +1,189 @@
 import products from "./utils.js";
 
+let productsInCart = JSON.parse(localStorage.getItem("proudectInCart")) || [];
 
-let proudectInCart=localStorage.getItem( "proudectInCart" )
-const allProducts = document.querySelector(".products");
-const totalEle = document.querySelector(".total")
-const totalPrice = document.querySelector(".total .totalPrice")
+const productsContainer = document.querySelector(".products");
+const totalContainer = document.querySelector(".total");
+const totalPriceElement = document.querySelector(".total .totalPrice");
 
-if (proudectInCart) {
-  drawProudectCart(JSON.parse(proudectInCart));
+let total = localStorage.getItem("totalPrice") ? +localStorage.getItem("totalPrice") : 0;
+
+if (productsInCart.length > 0) {
+  renderCart(productsInCart);
+} else {
+  showEmptyCart();
 }
 
-function drawProudectCart(products) {
+// ------------------Cart Logices--------------------------------
+function renderCart(products) {
+  let tableHTML = `
+    <table class="table cart-table align-middle text-center table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>PRODUCT</th>
+          <th>PRICE</th>
+          <th>QUANTITY</th>
+          <th>SUBTOTAL</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="cartItems">
+  `;
 
-  let y = products.map((item) => {
-    let quantity = +(localStorage.getItem(`quantity-${item.id}`)) || 1;
+  let mobileHTML = `<div class="mobile-cart">`;
 
-    return `
-        <div id="product-${item.id}" class="product-item col-lg-4 col-md-6 col-sm-12 mb-4">
-        <div class="card border border-info">
-          <div class="row">
-            <div class="col-lg-12">
-              <img class="product-item-img card-img-top " src="${item.imageURL}" alt="Card image">
-            </div>
-            <div class="col-md-12">
-              <div class="product-item-desc card-body p-0">
-                <p class="card-title">Product: ${item.title}.</p>
-                <p class="card-text">Category: ${item.category}.</p>
-                <p class="color">Color: ${item.color}.</p>
-                <p class="card-price">Price: <span><del>${item.price}</del> EGP ${item.salePrice}</span></p>
-              </div>
+  products.forEach((item) => {
+    const quantity = +(localStorage.getItem(`quantity-${item.id}`)) || 1;
+    const subtotal = (item.salePrice * quantity);
 
-              <div class="product-item-action d-flex justify-content-between align-items-center ">
-                <button id="remove-btn-${item.id}" class="RemoveFromCartBtn btn btn-primary mb-2 d-inline-block" data-product-id="${item.id}">Remove From Cart</button>
-                <div class="d-flex align-items-center">
-                  <span class="text-danger mins p-0 ml-2" style="font-size : 25px;  cursor: pointer; " data-product-id="${item.id}" data-product-price="${item.salePrice}">-</span>
-                  <span class="text-success pls p-0 ml-2" style="font-size : 25px;  cursor: pointer; " data-product-id="${item.id}" data-product-price="${item.salePrice}">+</span>
-                  <div class="text-primary ml-2" style="font-size : 20px" id="quantity-${item.id}">${quantity}</div>
-                </div>
-              </div>
-            </div>
+    tableHTML += `
+      <tr id="cart-item-${item.id}">
+        <td class="text-left"><img src="${item.imageURL}" class="cart-img" alt="${item.title}"> ${item.title}</td>
+        <td class="text-primary">${item.salePrice} EGP</td>
+        <td>
+          <button class="btn btn-outline-secondary btn-sm minus" data-product-id="${item.id}" data-product-price="${item.salePrice}">−</button>
+          <span id="quantity-${item.id}" class="mx-2">${quantity}</span>
+          <button class="btn btn-outline-secondary btn-sm plus" data-product-id="${item.id}" data-product-price="${item.salePrice}">+</button>
+        </td>
+        <td id="subtotal-${item.id}" class="text-success">${subtotal}</td>
+        <td><button class="btn btn-outline-danger btn-sm RemoveFromCartBtn" data-product-id="${item.id}">&times;</button></td>
+      </tr>
+    `;
+
+    mobileHTML += `
+      <div class="mobile-cart-item" id="mobile-cart-${item.id}">
+        <button class="mobile-cart-remove RemoveFromCartBtn" data-product-id="${item.id}">×</button>
+        <div class="mobile-cart-header">
+          <img class="mobile-cart-img" src="${item.imageURL}" alt="${item.title}">
+          <div class="mobile-cart-info">
+            <span class="mobile-cart-title">${item.title}</span>
+            <span class="mobile-cart-price">${item.salePrice} EGP</span>
           </div>
         </div>
+        <div class="mobile-cart-body">
+          <div class="mobile-quantity-controls">
+            <button class="minus" data-product-id="${item.id}" data-product-price="${item.salePrice}">−</button>
+            <span id="quantity-${item.id}" class="mobile-quantity-display">${quantity}</span>
+            <button class="plus" data-product-id="${item.id}" data-product-price="${item.salePrice}">+</button>
+          </div>
+          <div class="mobile-cart-subtotal" id="subtotal-${item.id}">${subtotal}</div>
+        </div>
       </div>
-    `
-  } )
-  allProducts.innerHTML = y.join('');
+    `;
+  });
+
+  tableHTML += `</tbody></table>`;
+  mobileHTML += `</div>`;
+
+  productsContainer.innerHTML = tableHTML + mobileHTML;
+
+  updateTotal();
+  registerCartEvents();
 }
 
-const noProductsFondEle = `
-                          <div class="products-not-found container">
-                            <img src="images/product_not_found.jpeg" alt="Products not found image" />
-                            <a href="index.html">
-                              Get Some Products <i class="fas fa-shopping-cart text-primary"></i>
-                            </a>
-                          </div>
-                          `
-
-if ( allProducts.childElementCount===0 ) {
-  allProducts.innerHTML = noProductsFondEle
-  totalEle.style.cssText = `display: none !important;`
+//-----------------Start Show empty cart message------------
+function showEmptyCart() {
+  productsContainer.innerHTML = `
+    <div class="products-not-found text-center my-5">
+      <img src="images/product_not_found.jpeg" alt="No products" class="img-fluid mb-3" style="max-width: 300px;">
+      <h5 class="text-muted mb-3">Your Cart is Empty!</h5>
+      <a href="index.html" class="btn btn-primary">
+        Browse Products <i class="fas fa-shopping-cart"></i>
+      </a>
+    </div>
+  `;
+  totalContainer.style.display = "none";
 }
-// ---------------------------Start localStorage aria---------------------
-let addItemStorage = localStorage.getItem("proudectInCart") ? JSON.parse(localStorage.getItem("proudectInCart")) : [];
-let quantity = 1;
-let total = localStorage.getItem("totalPrice") ? +(localStorage.getItem("totalPrice")) : 0;
+//-----------------End Show empty cart message------------
 
-if (addItemStorage) {
-  addItemStorage.map((item) => {
-    total += +item.salePrice * +(localStorage.getItem(`quantity-${item.id}`));
-  })
-  totalPrice.innerHTML = total / 2 + " EGP";
+//-----------------Start Update total price------------
+function updateTotal() {
+  total = productsInCart.reduce((sum, item) => {
+    const quantity = +(localStorage.getItem(`quantity-${item.id}`)) || 1;
+    return sum + item.salePrice * quantity;
+  }, 0);
 
+  totalPriceElement.textContent = `${total} EGP`;
+  localStorage.setItem("totalPrice", total.toString());
 }
-// ---------------------------End localStorage aria---------------------------
+//-----------------End Update total price------------
 
-// ------- Start remove products from Cart--------------
-const RemoveFromCartBtn = document.querySelectorAll(".RemoveFromCartBtn")
-
-RemoveFromCartBtn.forEach( btn => {
-  btn.addEventListener("click" , () => removeFromCart(Number(btn.dataset.productId)))
-})
-
+//-----------------Start Remove product from cart------------
 function removeFromCart(id) {
-  let itemIndex = addItemStorage.findIndex((item) => item.id === id);
-  let quantityElement = document.getElementById(`quantity-${id}`);
-  let quantity = +(quantityElement.innerHTML);
+  productsInCart = productsInCart.filter((item) => item.id !== id);
+  localStorage.setItem("proudectInCart", JSON.stringify(productsInCart));
+  localStorage.removeItem(`quantity-${id}`);
 
-  if (itemIndex !== -1) {
-    addItemStorage.splice(itemIndex, 1);
-    localStorage.setItem("proudectInCart", JSON.stringify(addItemStorage));
+  const row = document.getElementById(`cart-item-${id}`);
+  if (row) row.remove();
 
-    total = 0;
-    let productItem = document.getElementById(`product-${id}`);
-    if (productItem) {
-      productItem.remove();
-    }
-    addItemStorage.forEach((item) => {
-      total += +item.salePrice * quantity;
-      // total += +item.salePrice * +(localStorage.getItem(`quantity-${item.id}`));
+  updateTotal();
 
-    });
-    totalPrice.innerHTML = total + " EGP";
-    localStorage.setItem("totalPrice", JSON.stringify(total));
+  if (productsInCart.length === 0) {
+    showEmptyCart();
   }
-  if ( allProducts.childElementCount===0 ) {
-    allProducts.innerHTML = noProductsFondEle
-    totalEle.style.cssText = `display: none !important;`
-  }
-  
 }
-// ------- End remove products from Cart--------------
+//-----------------End Remove product from cart------------
 
-//--------------Start Quantities Control---------------------
-allProducts.addEventListener( "click", e => {
-  let target = e.target
-  if (!target) return;
+//-----------------Start Increase quantity------------
+function increaseQuantity(id, price) {
+  const quantityEl = document.getElementById(`quantity-${id}`);
+  let quantity = +(quantityEl.textContent) + 1;
 
-  // Increase Quantity
-  if (target.classList.contains('pls')) {
-    const id = Number(target.dataset.productId);
-    const price = Number(target.dataset.productPrice);
-      
-    if (Number.isFinite(id) && Number.isFinite(price)) {
-        increaseQuantity(id, price);
-    }
-    return;
-  }
-  // Decrease Quantity
-  if (target.classList.contains('mins')) {
-    const id = Number(target.dataset.productId);
-    const price = Number(target.dataset.productPrice);
-    
-    if (Number.isFinite(id) && Number.isFinite(price)) {
-        decreaseQuantity(id, price);
-    }
-    return;
-  }
-})
-
-function increaseQuantity(id, salePrice) {
-  // console.log(item);
-
-  let quantityElement = document.getElementById(`quantity-${id}`);
-  let quantity = +(quantityElement.innerHTML);
-
-  quantity++;
-  quantityElement.innerHTML = quantity;
-  localStorage.setItem(`quantity-${id}`, quantity.toString());
-  total += (+salePrice);
-  totalPrice.innerHTML = total + " EGP";
-  localStorage.setItem("totalPrice", JSON.stringify(total));
+  quantityEl.textContent = quantity;
+  localStorage.setItem(`quantity-${id}`, quantity);
+  updateSubtotal(id, price, quantity);
+  updateTotal();
 }
+//-----------------End Increase quantity------------
 
-function decreaseQuantity(id, salePrice) {
-  // console.log(item);
-  let quantityElement = document.getElementById(`quantity-${id}`);
-  let quantity = +(quantityElement.innerHTML);
+//-----------------Start Decrease quantity------------
+function decreaseQuantity(id, price) {
+  const quantityEl = document.getElementById(`quantity-${id}`);
+  let quantity = +(quantityEl.textContent);
 
   if (quantity > 1) {
     quantity--;
-    quantityElement.innerHTML = quantity;
-    localStorage.setItem(`quantity-${id}`, quantity.toString());
-    total -= (+salePrice);
-    totalPrice.innerHTML = total + " EGP";
-    localStorage.setItem("totalPrice", JSON.stringify(total));
-  }
-  else {
+    quantityEl.textContent = quantity;
+    localStorage.setItem(`quantity-${id}`, quantity);
+    updateSubtotal(id, price, quantity);
+    updateTotal();
+  } else {
     removeFromCart(id);
   }
 }
-//--------------End Quantities Control---------------------
+//-----------------End Decrease quantity------------
+
+//-----------------Start Update subtotal for a product------------
+function updateSubtotal(id, price, quantity) {
+  const subtotalEl = document.getElementById(`subtotal-${id}`);
+  if (subtotalEl) {
+    subtotalEl.textContent = `${(price * quantity)}`;
+  }
+}
+//-----------------End Update subtotal for a product------------
+
+//------------------Start Register event listeners for cart buttons-------------
+function registerCartEvents() {
+  document.querySelectorAll(".plus").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      increaseQuantity(Number(btn.dataset.productId), Number(btn.dataset.productPrice))
+    );
+  });
+
+  document.querySelectorAll(".minus").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      decreaseQuantity(Number(btn.dataset.productId), Number(btn.dataset.productPrice))
+    );
+  });
+
+  document.querySelectorAll(".RemoveFromCartBtn").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      removeFromCart(Number(btn.dataset.productId))
+    );
+  });
+}
+//------------------End Register event listeners for cart buttons-------------
 
 // ------------------Start Favorite Logices--------------------------------
 function drawFavData() {
@@ -236,7 +250,6 @@ const wrapper = document.querySelector( '.cards-wrapper' );
 const cardsContainer = document.querySelector( '.carousel' );
 const cardWidth = cardsContainer.querySelector(".carousel .card")?.offsetWidth
 
-console.log(cardsContainer.childElementCount)
 cardsContainer.childElementCount === 0 ? wrapper.style.display = "none" : null
 let isDragging=false, startX, startScrollLeft , timeout
 
