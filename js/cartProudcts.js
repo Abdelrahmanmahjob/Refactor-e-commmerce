@@ -63,10 +63,10 @@ function renderCart(products) {
         <div class="mobile-cart-body">
           <div class="mobile-quantity-controls">
             <button class="minus" data-product-id="${item.id}" data-product-price="${item.salePrice}">−</button>
-            <span id="quantity-${item.id}" class="mobile-quantity-display">${quantity}</span>
+            <span id="mobile-quantity-${item.id}" class="mobile-quantity-display">${quantity}</span>
             <button class="plus" data-product-id="${item.id}" data-product-price="${item.salePrice}">+</button>
           </div>
-          <div class="mobile-cart-subtotal" id="subtotal-${item.id}">${subtotal}</div>
+          <div class="mobile-cart-subtotal" id="mobile-subtotal-${item.id}">${subtotal}</div>
         </div>
       </div>
     `;
@@ -117,6 +117,9 @@ function removeFromCart(id) {
   const row = document.getElementById(`cart-item-${id}`);
   if (row) row.remove();
 
+  const mobileRow = document.getElementById(`mobile-cart-${id}`);
+  if (mobileRow) mobileRow.remove();
+
   updateTotal();
 
   if (productsInCart.length === 0) {
@@ -128,9 +131,11 @@ function removeFromCart(id) {
 //-----------------Start Increase quantity------------
 function increaseQuantity(id, price) {
   const quantityEl = document.getElementById(`quantity-${id}`);
-  let quantity = +(quantityEl.textContent) + 1;
+  let quantity = +(quantityEl ? quantityEl.textContent : 0) + 1;
 
-  quantityEl.textContent = quantity;
+  if (quantityEl) quantityEl.textContent = quantity;
+  const mobileQuantityEl = document.getElementById(`mobile-quantity-${id}`);
+  if (mobileQuantityEl) mobileQuantityEl.textContent = quantity;
   localStorage.setItem(`quantity-${id}`, quantity);
   updateSubtotal(id, price, quantity);
   updateTotal();
@@ -139,12 +144,14 @@ function increaseQuantity(id, price) {
 
 //-----------------Start Decrease quantity------------
 function decreaseQuantity(id, price) {
-  const quantityEl = document.getElementById(`quantity-${id}`);
-  let quantity = +(quantityEl.textContent);
+  const quantityEl = document.getElementById(`quantity-${id}`) || document.getElementById(`mobile-quantity-${id}`);
+  let quantity = +(quantityEl ? quantityEl.textContent : 0);
 
   if (quantity > 1) {
     quantity--;
-    quantityEl.textContent = quantity;
+    if (quantityEl) quantityEl.textContent = quantity;
+    const mobileQuantityEl = document.getElementById(`mobile-quantity-${id}`);
+    if (mobileQuantityEl) mobileQuantityEl.textContent = quantity;
     localStorage.setItem(`quantity-${id}`, quantity);
     updateSubtotal(id, price, quantity);
     updateTotal();
@@ -158,7 +165,11 @@ function decreaseQuantity(id, price) {
 function updateSubtotal(id, price, quantity) {
   const subtotalEl = document.getElementById(`subtotal-${id}`);
   if (subtotalEl) {
-    subtotalEl.textContent = `${(price * quantity)}`;
+    subtotalEl.textContent = `${price * quantity}`;
+  }
+  const mobileSubtotalEl = document.getElementById(`mobile-subtotal-${id}`);
+  if (mobileSubtotalEl) {
+    mobileSubtotalEl.textContent = `${price * quantity}`;
   }
 }
 //-----------------End Update subtotal for a product------------
@@ -261,7 +272,6 @@ arrowBtns.forEach( btn => {
 })
 
 const autoPlay = () => {
-    // if(window.innerWidth < 800) return // Disable autoplay on small screens
     timeout = setTimeout(() => {
         cardsContainer.scrollLeft+=cardWidth
         // autoPlay()
@@ -273,16 +283,13 @@ const dragStart = (e) => {
     isDragging=true
     cardsContainer.classList.add( "dragging" )
     
-    // Records the initial cursor and scroll position of the cardsContainer 
     startX=e.pageX
     startScrollLeft = cardsContainer.scrollLeft
 }
 
 const dragging = ( e ) => {
-    // console.log(e.pageX)
-    if ( !isDragging ) return // if isDragging is false return from here
+    if ( !isDragging ) return 
 
-    // Update the scroll position of the cardsContainer based on the cursor movement
     cardsContainer.scrollLeft = startScrollLeft -  (e.pageX - startX)
 } 
 
@@ -299,22 +306,19 @@ wrapper.addEventListener( "mouseenter", () => clearTimeout(timeout))
 wrapper.addEventListener( "mouseleave", autoPlay)
 
 const infiniteScroll = () => {
-    // If the user scrolls to the end of the container, reset the scroll position
     if ( cardsContainer.scrollLeft === 0 ) {
         cardsContainer.classList.add("no-transition")
         cardsContainer.scrollLeft = cardsContainer.scrollWidth - (cardsContainer.offsetWidth * 2)
         cardsContainer.classList.remove("no-transition")
     }
-    // If the user scrolls to the start of the container, reset the scroll position
     else if ( Math.ceil( cardsContainer.scrollLeft ) >= cardsContainer.scrollWidth - cardsContainer.offsetWidth ) {
-        // console.log("Last")
         cardsContainer.classList.add("no-transition")
         cardsContainer.scrollLeft = cardsContainer.offsetWidth
         cardsContainer.classList.remove("no-transition")
     }
 
     clearTimeout(timeout)
-    if(!wrapper.matches(":hover")) autoPlay() // If the user is not hovering over the wrapper, start autoplay
+    if(!wrapper.matches(":hover")) autoPlay()
 }
 
 cardsContainer.addEventListener( "scroll", infiniteScroll)
